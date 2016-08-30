@@ -27,6 +27,11 @@ from pycalico.datastore_errors import DataStoreError, \
     ProfileNotInEndpoint, ProfileAlreadyInEndpoint, MultipleEndpointsMatch
 from pycalico.util import get_hostname, validate_hostname_port
 
+prefix = os.getenv("FELIX_ETCD_ROOTPREFIX","")
+if prefix and not prefix.startswith("/",0):
+    prefix = "/%s" % prefix
+
+
 ETCD_AUTHORITY_DEFAULT = "127.0.0.1:2379"
 ETCD_AUTHORITY_ENV = "ETCD_AUTHORITY"
 ETCD_ENDPOINTS_ENV = "ETCD_ENDPOINTS"
@@ -39,7 +44,7 @@ ETCD_CERT_FILE_ENV = "ETCD_CERT_FILE"
 ETCD_CA_CERT_FILE_ENV = "ETCD_CA_CERT_FILE"
 
 # etcd paths for Calico workloads, endpoints and IPAM.
-CALICO_V_PATH = "/calico/v1"
+CALICO_V_PATH = "%s/calico/v1" % prefix
 CONFIG_PATH = CALICO_V_PATH + "/config/"
 CONFIG_IF_PREF_PATH = CONFIG_PATH + "InterfacePrefix"
 HOSTS_PATH = CALICO_V_PATH + "/host/"
@@ -65,7 +70,7 @@ IP_POOL_KEY = IP_POOLS_PATH + "%(pool)s"
 HOST_IPV4_PATH = HOST_PATH + "bird_ip"
 
 # etcd paths for BGP specific configuration
-BGP_V_PATH = "/calico/bgp/v1/"
+BGP_V_PATH = "%s/calico/bgp/v1/"%prefix
 BGP_GLOBAL_PATH = BGP_V_PATH + "global/"
 BGP_GLOBAL_PEERS_PATH = BGP_GLOBAL_PATH + "peer_v%(version)s/"
 BGP_GLOBAL_PEER_PATH = BGP_GLOBAL_PEERS_PATH + "%(peer_ip)s"
@@ -108,7 +113,7 @@ IP_IN_IP_DISABLED = "false"
 IP_IN_IP_ENABLED = "true"
 
 # IPAM paths
-IPAM_V_PATH = "/calico/ipam/v2/"
+IPAM_V_PATH = "%s/calico/ipam/v2/"%prefix
 IPAM_CONFIG_PATH = IPAM_V_PATH + "config"
 IPAM_HOSTS_PATH = IPAM_V_PATH + "host"
 IPAM_HOST_PATH = IPAM_HOSTS_PATH + "/%(host)s"
@@ -1324,7 +1329,7 @@ class DatastoreClient(object):
 
         """
         try:
-            self.etcd_client.delete("/calico", recursive=True, dir=True)
+            self.etcd_client.delete("%s/calico"%prefix, recursive=True, dir=True)
         except EtcdKeyNotFound:
             pass
 
