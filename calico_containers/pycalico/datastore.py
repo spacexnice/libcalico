@@ -43,6 +43,8 @@ ETCD_KEY_FILE_ENV = "ETCD_KEY_FILE"
 ETCD_CERT_FILE_ENV = "ETCD_CERT_FILE"
 ETCD_CA_CERT_FILE_ENV = "ETCD_CA_CERT_FILE"
 
+VERIFY_CERT_HOSTNAME = "VERIFY_CERT_HOSTNAME"
+
 # etcd paths for Calico workloads, endpoints and IPAM.
 CALICO_V_PATH = "%s/calico/v1" % prefix
 CONFIG_PATH = CALICO_V_PATH + "/config/"
@@ -153,6 +155,8 @@ class DatastoreClient(object):
         etcd_cert = os.getenv(ETCD_CERT_FILE_ENV, '')
         etcd_ca = os.getenv(ETCD_CA_CERT_FILE_ENV, '')
 
+        assert_host = os.getenv(VERIFY_CERT_HOSTNAME,True)
+
         addr_env = None
         scheme_env = None
         etcd_addrs_raw = []
@@ -249,13 +253,15 @@ class DatastoreClient(object):
                                            protocol=etcd_scheme,
                                            cert=key_pair,
                                            ca_cert=etcd_ca,
-                                           allow_reconnect=True)
+                                           allow_reconnect=True,
+                                           assert_hostname=assert_host)
         else:
             self.etcd_client = etcd.Client(host=etcd_addrs[0][0],
                                            port=etcd_addrs[0][1],
                                            protocol=etcd_scheme,
                                            cert=key_pair,
-                                           ca_cert=etcd_ca)
+                                           ca_cert=etcd_ca,
+                                           assert_hostname=assert_host)
 
     @handle_errors
     def ensure_global_config(self):
