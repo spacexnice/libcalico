@@ -14,6 +14,7 @@
 """
 Module containing all of the datatypes written and read from the datastore.
 """
+import os
 from collections import namedtuple
 import copy
 import json
@@ -223,11 +224,13 @@ class Endpoint(object):
     This class keeps track of the original JSON representation of the
     endpoint to allow atomic updates to be performed.
     """
+    prefix = "/%s" % os.getenv("FELIX_ETCD_ROOTPREFIX","") if os.getenv("FELIX_ETCD_ROOTPREFIX","") and not os.getenv("FELIX_ETCD_ROOTPREFIX","").startswith("/",0) else os.getenv("FELIX_ETCD_ROOTPREFIX","")
+
     # Endpoint path match regex
-    ENDPOINT_KEY_MATCH = re.compile("/calico/v1/host/(?P<hostname>[^/]*)/"
+    ENDPOINT_KEY_MATCH = re.compile("%s/calico/v1/host/(?P<hostname>[^/]*)/"
                                 "workload/(?P<orchestrator_id>[^/]*)/"
                                 "(?P<workload_id>[^/]*)/"
-                                "endpoint/(?P<endpoint_id>[^/]*)")
+                                "endpoint/(?P<endpoint_id>[^/]*)"%prefix)
 
     def __init__(self, hostname, orchestrator_id, workload_id, endpoint_id,
                  state, mac, name=None):
