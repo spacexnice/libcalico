@@ -27,7 +27,7 @@ from pycalico.datastore_errors import DataStoreError, \
     ProfileNotInEndpoint, ProfileAlreadyInEndpoint, MultipleEndpointsMatch
 from pycalico.util import get_hostname, validate_hostname_port
 
-prefix = os.getenv("FELIX_ETCD_ROOTPREFIX","")
+prefix = os.getenv("ETCD_ROOTPREFIX","")
 if prefix and not prefix.startswith("/",0):
     prefix = "/%s" % prefix
 
@@ -156,7 +156,7 @@ class DatastoreClient(object):
         etcd_ca = os.getenv(ETCD_CA_CERT_FILE_ENV, '')
 
         assert_host = os.getenv(VERIFY_CERT_HOSTNAME,True)
-
+        assert_host = False if assert_host.lower() == "false" else True
         addr_env = None
         scheme_env = None
         etcd_addrs_raw = []
