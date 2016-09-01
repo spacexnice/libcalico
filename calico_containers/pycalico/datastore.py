@@ -155,8 +155,8 @@ class DatastoreClient(object):
         etcd_cert = os.getenv(ETCD_CERT_FILE_ENV, '')
         etcd_ca = os.getenv(ETCD_CA_CERT_FILE_ENV, '')
 
-        assert_host = os.getenv(VERIFY_CERT_HOSTNAME,True)
-        assert_host = False if assert_host.lower() == "false" else True
+        cert_host = str(os.getenv(VERIFY_CERT_HOSTNAME,True))
+        assert_host = False if cert_host.lower() == "false" else True
         addr_env = None
         scheme_env = None
         etcd_addrs_raw = []
